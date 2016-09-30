@@ -67,6 +67,15 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("""SELECT players.id,players.name,wins_per_player.winner,player_match_count where
+              players.id = wins_per_player.winner AND players.id = player_match_count;""")
+    # This was tricky! A fetch removes the stack and saves it in the memory
+    standings = c.fetchall()
+    conn.commit()
+    conn.close()
+    return standings
 
 
 def reportMatch(winner, loser):
