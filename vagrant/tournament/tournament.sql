@@ -22,9 +22,8 @@ CREATE TABLE players (
 
 CREATE TABLE matches (
     id serial primary key,
-    player_1 integer references players(id),
-    player_2 integer references players(id),
-    winner integer references players(id)
+    winner integer references players(id),
+    loser integer references players(id)
 );
 
 -- create some useful Views
@@ -34,8 +33,8 @@ create view wins_per_player AS
   group by players.id order by count desc;
 
 create view matches_per_player AS
-  select players.id , count(players.id)
-  from players left outer join matches on (players.id = player_1 OR players.id = matches.player_2)
+  select players.id , count(matches.id)
+  from players left outer join matches on (players.id = matches.winner OR players.id = matches.loser)
   group by players.id order by count desc;
 
 -- Stack the columns
