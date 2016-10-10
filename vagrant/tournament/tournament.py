@@ -31,7 +31,7 @@ def countPlayers():
     """Returns the number of players currently registered."""
     conn = connect()
     c = conn.cursor()
-    c.execute("SELECT count(player_id) FROM players;")
+    c.execute("SELECT count(id) FROM players;")
     # This was tricky! A fetch removes the stack and saves it in the memory
     count = c.fetchall()[0][0]
     conn.commit()
@@ -69,8 +69,7 @@ def playerStandings():
     """
     conn = connect()
     c = conn.cursor()
-    c.execute("""SELECT players.id,players.name,wins_per_player.winner,player_match_count where
-              players.id = wins_per_player.winner AND players.id = player_match_count;""")
+    c.execute("select * from standings;")
     # This was tricky! A fetch removes the stack and saves it in the memory
     standings = c.fetchall()
     conn.commit()
@@ -85,6 +84,12 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    conn = connect()
+    c = conn.cursor()
+    c.execute("INSERT INTO matches (player_1, player_2, winner) VALUES (%s, %s, %s);",
+              (winner,loser,winner,))
+    conn.commit()
+    conn.close()
 
 
 def swissPairings():

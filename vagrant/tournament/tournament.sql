@@ -28,20 +28,20 @@ CREATE TABLE matches (
 );
 
 -- create some useful Views
-CREATE VIEW wins_per_player AS SELECT winner,count(winner)
-  FROM matches GROUP BY winner;
+create view wins_per_player AS
+  select players.id,count(winner) from players
+  left outer join matches on (players.id = matches.winner)
+  group by players.id order by count desc;
 
-CREATE VIEW p1_stats AS
-  SELECT player_1,count(player_1) FROM matches GROUP BY player_1;
+create view matches_per_player AS
+  select players.id , count(players.id)
+  from players left outer join matches on (players.id = player_1 OR players.id = matches.player_2)
+  group by players.id order by count desc;
 
-CREATE VIEW p2_stats AS
-  SELECT player_2,count(player_2) FROM matches GROUP BY player_2;
-
-
-CREATE VIEW player_match_count AS
-  SELECT p1_stats.player_1 as player, p1_stats.count as count FROM p1_stats
-  UNION ALL
-  SELECT p2_stats.player_2 as player, p2_stats.count as count FROM p2_stats;
-
-
-  SELECT player,sum(count) FROM player_match_count GROUP BY player;
+-- Stack the columns
+CREATE VIEW standings AS
+  select players.id, players.name, wins_per_player.count as wins,
+  matches_per_player.count as matches
+  from players join wins_per_player on (players.id = wins_per_player.id)
+  join matches_per_player on (players.id = matches_per_player.id)
+  order by wins desc;
